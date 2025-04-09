@@ -484,7 +484,7 @@ class WebsocketsTransport(WebsocketsTransportBase):
     async def _after_connect(self):
 
         # Find the backend subprotocol returned in the response headers
-        response_headers = self.websocket.response_headers
+        response_headers = self.websocket.response.headers
         try:
             self.subprotocol = response_headers["Sec-WebSocket-Protocol"]
         except KeyError:

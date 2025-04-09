@@ -7,6 +7,7 @@ from ssl import SSLContext
 from typing import Any, AsyncGenerator, Dict, List, Optional, Tuple, Union, cast
 
 import websockets
+import websockets.asyncio.client
 from graphql import DocumentNode, ExecutionResult
 from websockets.client import WebSocketClientProtocol
 from websockets.datastructures import Headers, HeadersLike
@@ -476,7 +477,7 @@ class WebsocketsTransportBase(AsyncTransport):
             # Set default arguments used in the websockets.connect call
             connect_args: Dict[str, Any] = {
                 "ssl": ssl,
-                "extra_headers": self.headers,
+                "additional_headers": self.headers,
                 "subprotocols": self.supported_subprotocols,
             }
 
@@ -488,7 +489,7 @@ class WebsocketsTransportBase(AsyncTransport):
             # Set the _connecting flag to False after in all cases
             try:
                 self.websocket = await asyncio.wait_for(
-                    websockets.client.connect(self.url, **connect_args),
+                    websockets.asyncio.client.connect(self.url, **connect_args),
                     self.connect_timeout,
                 )
             finally:
@@ -496,7 +497,7 @@ class WebsocketsTransportBase(AsyncTransport):
 
             self.websocket = cast(WebSocketClientProtocol, self.websocket)
 
-            self.response_headers = self.websocket.response_headers
+            self.response_headers = self.websocket.response.headers
 
             # Run the after_connect hook of the subclass
             await self._after_connect()
